@@ -1,0 +1,17 @@
+!docker/volumes/mysql
+docker/volumes/mysql/*
+!docker/volumes/mysql/.gitkeep
+
+!docker/volumes/redis
+docker/volumes/redis/*
+!docker/volumes/redis/.gitkeep
+
+.DS_Store
+.idea
+src/public/assets/twill/twill-manifest.json
+src/public/main-buckets.html
+src/public/main-dashboard.html
+src/public/main-form.html
+src/public/main-free.html
+src/public/main-listing.html
+src/public/assets/twill/twill-manifest.json

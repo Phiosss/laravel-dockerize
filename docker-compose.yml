@@ -8,6 +8,8 @@ services:
     working_dir: /var/www
     volumes:
       - ./src:/var/www
+    networks:
+      net:
   # Web Server
   web:
     build:
@@ -18,9 +20,14 @@ services:
       - ./src:/var/www
       - ./docker/services/web/conf.d/:/etc/nginx/conf.d/
       - ./docker/services/web/ssl/:/etc/nginx/ssl/
-    ports:
-      - "80:80"
-      - "443:443"
+      - ./docker/services/web/log/:/var/log/nginx/
+    networks:
+      expose_network:
+      net:
+    depends_on:
+      - app
+    environment:
+      - VIRTUAL_HOST=your_domain_name.local
   # Database
   database:
     platform: linux/x86_64
@@ -28,13 +35,19 @@ services:
     restart: unless-stopped
     volumes:
       - ./docker/volumes/mysql:/var/lib/mysql
+    networks:
+      net:
     environment:
       MYSQL_DATABASE: ${DB_DATABASE}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_USER: ${DB_USERNAME}
+      TZ: UTC
     ports:
-      - "127.0.0.1:3306:3306"
+      - "3306"
+    command:
+      - --sort_buffer_size=402653184
+      - --default-time-zone=+00:00
   # Caching
   redis:
     image: redis:alpine
@@ -42,6 +55,15 @@ services:
     volumes:
       - ./docker/volumes/redis:/data
       - ./docker/redis.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      net:
     command: /bin/sh -c "redis-server --requirepass ${REDIS_PASSWORD}"
     ports:
-      - "127.0.0.1:6379:6379"
+      - "6379"
+networks:
+    # Join proxy network for exposing http services
+    expose_network:
+        external:
+            name: web_proxy
+    # Internal network for this project
+    net:

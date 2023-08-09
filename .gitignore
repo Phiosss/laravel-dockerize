@@ -8,3 +8,5 @@ docker/volumes/redis/*
 
 .DS_Store
 .idea
+
+docker/services/web/log/*
